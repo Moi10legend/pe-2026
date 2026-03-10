@@ -40,7 +40,7 @@ void digitarAsNotas(double nota1[], double nota2[], int n){
 
 void calcularMediaPorAluno(double nota1[], double nota2 [], double media[], int n){
     for(int i = 0; i < n; i += 1){
-        double media_atual = ((double) nota1[i]*2 + (double) nota2[i] * 3) / 5;
+        double media_atual = (nota1[i]*2 + nota2[i] * 3) / 5;
         media[i] = media_atual;
     }
 }
