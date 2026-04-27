@@ -55,16 +55,22 @@ void retornaTransposta(int matA[][COL], int lin, int col){
 }
 
 void multiplicarMatrizes(int matA[][COL], 
-    int matB[][COL], int matMult[][COL], 
-    int linA, int colA, int linB, int colB){
+    int matB[][COL], 
+    int matMult[][COL], 
+    int linA, int colA, 
+    int linB, int colB,
+    int linMult, int colMult){
     if(linA == colB){
         int resultado = 0, colMatMult = 0;
         for(int i = 0; i < linA; i += 1){
-            for(int j = 0; j < colA; i += 1){
-                resultado = matA[i][j] * matB[j][i];
-                matMult[i][j] = resultado;
+            for(int j = 0; j < colA; j += 1){
+                resultado += matA[i][j] * matB[j][i];
             }
             
+            matMult[i][colMatMult] = resultado;
+            colMatMult += 1;
+            
+            resultado = 0;
         }
     }
 }
