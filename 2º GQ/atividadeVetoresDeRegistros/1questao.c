@@ -30,7 +30,7 @@ int main(){
     printf("\nO estado com menor número de acidentes é %s com %d acidentes.",
         estados[menor].nome, estados[menor].numAcidentes);
     
-    printf("Digite o nome do estado que deseja ver o percentual de veículos que se envolveram em acidentes: ");
+    printf("\nDigite o nome do estado que deseja ver o percentual de veículos que se envolveram em acidentes: ");
     scanf(" %[^\n]", estado);
 
     percentualVeiculosAcidentes = percentualDeVeiculosEnvolvidosEmAcidentes(estados,estado, QTD_ESTADOS) * 100;
@@ -102,13 +102,5 @@ void estadosAcimaDaMediaNacionalDeAcidentes(struct Estado ve[], int tam, double 
         if(ve[i].numAcidentes > media){
             printf("\nEstado %s acima da média com %d acidentes\n", ve[i].nome, ve[i].numAcidentes);
         }
-    }
-}
-
-void lerStr(char str[], int tamMax) {
-    fgets(str, tamMax, stdin);
-    int tam = strlen(str);
-    if (tam > 0 && str[tam - 1] == '\n') {
-        str[tam - 1] = '\0';
     }
 }
