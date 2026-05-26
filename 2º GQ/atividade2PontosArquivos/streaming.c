@@ -24,8 +24,10 @@ struct Usuario{
     int idsVideosFavoritos[QTD_MAX_VIDEOS];
 };
 
-int buscarUsuario(struct Usuario vu[], int tam, char email[]); 
+int buscarUsuario(char email[]); 
 void mostrarVideosFavoritos(struct Video vv[], int tam);
+void cadastrarUsuario();
+void mostrarVideos();
 
 int main(){
     FILE * arqVideosCadastrados;
@@ -53,9 +55,16 @@ int main(){
         printf("\n[0] Fechar programa\n");
         scanf("%d", &opcao);
 
-        
-    // }
-    // return 0;
+        switch(opcao){
+            case 1:
+                cadastrarUsuario();
+            case 2:
+                //cadastrarVideo
+            case 3:
+                mostrarVideos();
+        }    
+    }
+    return 0;
 }
 
 void cadastrarUsuario(){
@@ -76,7 +85,7 @@ void cadastrarUsuario(){
 
     novo.idsVideosFavoritos = 0;
 
-    FILE * arq = fopen("usuariosCadastrados.bin", "ab")
+    FILE * arq = fopen("usuariosCadastrados.bin", "ab");
     
 
 }
@@ -91,7 +100,7 @@ int buscarUsuario(char email[]){
 
     struct Usuario u;
 
-    while(fread(&u, sizeof(Usuario), 1, arq) == 1){
+    while(fread(&u, sizeof(struct Usuario), 1, arq) == 1){
         if(strcmp(u.email, email) == 0){
             fclose(arq);
             return i;
@@ -102,6 +111,13 @@ int buscarUsuario(char email[]){
     return -1;
 }
 
-void mostrarVideos(struct Video vv[], int tam){
+void mostrarVideos(){
+    FILE * arq = fopen("usuariosCadastrados.bin", "rb");
 
+    if (arq == NULL) {
+        return 0; 
+    }
+
+    struct Usuario u;
+    while()
 }

@@ -14,6 +14,9 @@ struct Produto {
 void cadastrarProduto(struct Produto produtos[], int *n);
 void exibirProdutos(struct Produto produtos[], int n);
 void lerStr(char str[], int tamMax);
+int buscarProduto(struct Produto produtos[], int tam, int id);
+void alterarValorUnitario(struct Produto produtos[], int tam);
+double mostrarValorUnitario(struct Produto produtos[], int tam);
 
 int main() {
     struct Produto produtos[TAM];
@@ -23,6 +26,8 @@ int main() {
     do {
         printf("\n======== PAPELARIA ESCOLAR ========\n");
         printf("1. Cadastrar novo produto\n");
+        printf("2. Mudar valor de um produto\n");
+        printf("3. Exibir valor de um produto\n");
         printf("7. Exibir todos os produtos\n");
         printf("-----------------------------------\n");
         printf("Escolha uma opcao (0 para sair): ");
@@ -31,6 +36,12 @@ int main() {
         switch (opcao) {
             case 1:
                 cadastrarProduto(produtos, &totalProdutos);
+                break;
+            case 2:
+                alterarValorUnitario(produtos, TAM);
+                break;
+            case 3:
+                mostrarValorUnitario(produtos, TAM);
                 break;
             case 7:
                 exibirProdutos(produtos, totalProdutos);
@@ -81,10 +92,10 @@ void exibirProdutos(struct Produto produtos[], int n) {
     }
 
     printf("\n--- Relatorio de Produtos ---\n");
-    printf("%-10s | %-30s\n", "Codigo", "Descricao");
+    printf("%-10s | %-30s | %s\n", "Codigo", "Descricao", "Valor");
     printf("------------------------------------------\n");
     for (int i = 0; i < n; i += 1) {
-        printf("%-10d | %-30s\n", produtos[i].codigo, produtos[i].descricao);
+        printf("%-10d | %-30s | %.2lf\n", produtos[i].codigo, produtos[i].descricao, produtos[i].vlrUnit);
     }
 }
 
@@ -98,8 +109,41 @@ void lerStr(char str[], int tamMax) {
 
 int buscarProduto(struct Produto produtos[], int tam, int id){
     for(int i = 0; i < tam; i+=1){
-        if(produtos[i]){
-            
+        if(produtos[i].codigo == id){
+            return i;
         }
     }
+
+    return -1;
+}
+
+void alterarValorUnitario(struct Produto produtos[], int tam){
+    int index, idProduto;
+    index = buscarProduto(produtos, tam, idProduto);
+
+    printf("Digite o codigo do produto que deseja alterar o valor: ");
+        scanf("%d", &idProduto);
+    if(index == -1){
+        printf("Produto não encontrado.");
+        return;
+    }
+
+    printf("Digite o novo valor: ");
+    scanf("%lf", &produtos[index].vlrUnit);
+
+    printf("Produto alterado com sucesso");
+}
+
+double mostrarValorUnitario(struct Produto produtos[], int tam){
+    int index, codigo;
+
+    printf("Digite o codigo do produto: ");
+    scanf("%d", &codigo);
+    index = buscarProduto(produtos, tam, codigo);
+    if(index = -1){
+        printf("Produto não encontrado.");
+        return;
+    }
+
+    printf("%s: %.2lf", produtos[index].descricao, produtos[index].vlrUnit);
 }
