@@ -38,6 +38,9 @@ int qtdVideosCadastrados(char nomeArqVideos);
 void adicionarVideoAosFavoritos(char nomeArqVideos[], char nomeArqUsuarios[]);
 void atualizarUsuario(char nomeArqUsuarios[]);
 void atualizarVideo(char nomeArqVideos);
+void relatorio(char nomeArqVideos[], char nomeArqUsuarios[]);
+void excluirUsuario(char nomeArquivoUsuarios[]);
+void excluirVideo(char nomeArqVideos[]);
 
 int main(){
     FILE * arqVideosCadastrados;
@@ -63,6 +66,10 @@ int main(){
         printf("\n[6] Atualizar usuário");
         printf("\n[7] Atualizar video");
         printf("\n[8] Relatorio");
+        printf("\n[9] Excluir Usuario");
+        printf("\n[10] Excluir Video");
+        printf("\n[11] Ver um video especifico");
+        printf("\n[12] Ver um usuario especifico");
         printf("\n[0] Fechar programa\n");
         scanf("%d", &opcao);
 
@@ -82,6 +89,14 @@ int main(){
             case 7:
                 atualizarVideo(nomeArqVideos);
             case 8:
+                relatorio(nomeArqVideos, nomeArqUsuarios);
+            case 9:
+                excluirUsuario(nomeArqUsuarios);
+            case 10:
+                excluirVideo(nomeArqVideos);
+            case 11:
+
+            case 12:
         }    
     }
     return 0;
@@ -478,12 +493,21 @@ void relatorio(char nomeArqVideos[], char nomeArqUsuarios[]){
     while(fread(&u, sizeof(struct Usuario), 1, arqUsuarios) == 1){
         printf("\nId: %d\n", u.id);
         printf("Nome: %s\n", u.nome);
+
+        if (u.qtd_favoritos == 0) {
+            printf("\t(Nenhum video favoritado)\n");
+        }
+
         for(int i = 0; i < u.qtd_favoritos; i+=1){
             int buscaVideo;
             buscaVideo = buscarVideo(nomeArqVideos, u.idsVideosFavoritos[i]);
 
+            if(buscaVideo == -1){
+                printf("id %d nao encontrado.", u.idsVideosFavoritos[i]);
+                continue;
+            }
             struct Video v;
-            long posicaoBytes = buscaVideo * sizeof(struct Usuario);
+            long posicaoBytes = buscaVideo * sizeof(struct Video);
             fseek(arqVideos, posicaoBytes, SEEK_SET);
             fread(&v, sizeof(struct Video), 1, arqVideos);
 
@@ -494,5 +518,184 @@ void relatorio(char nomeArqVideos[], char nomeArqUsuarios[]){
     }
 
     fclose(arqUsuarios);
+    fclose(arqVideos);
+}
+
+void excluirUsuario(char nomeArquivoUsuarios[]){
+    int id;
+
+    printf("Digite o id do usuario que deseja excluir: ");
+    scanf("%d", &id);
+    getchar();
+
+    FILE * arqAntigo = fopen(nomeArquivoUsuarios, "rb");
+    if(arqAntigo == NULL){
+        printf("Erro ao abrir arquivo de usuarios.");
+        return;
+    }
+
+    FILE *arqNovo = fopen("temp.bin", "wb");
+    if (arqNovo == NULL) {
+        printf("Erro ao criar arquivo temporario.\n");
+        fclose(arqAntigo);
+        return;
+    }
+
+    struct Usuario u;
+    int encontrou = 0;
+
+    while (fread(&u, sizeof(struct Usuario), 1, arqAntigo) == 1) {
+        
+        if (u.id == id) {
+            encontrou = 1; 
+        } else {
+            fwrite(&u, sizeof(struct Usuario), 1, arqNovo);
+        }
+    }
+
+    fclose(arqAntigo);
+    fclose(arqNovo);
+
+    if (encontrou == 1) {
+        remove(nomeArquivoUsuarios);
+        
+        rename("temp.bin", nomeArquivoUsuarios);
+        
+        printf("Usuario excluido com sucesso!\n");
+    } else {
+        remove("temp.bin");
+        printf("Erro: Usuario ID %d nao encontrado.\n", id);
+    }
+}
+
+void excluirVideo(char nomeArqVideos[]){
+    int id;
+
+    printf("Digite o id do video que deseja excluir: ");
+    scanf("%d", &id);
+    getchar();
+
+    FILE * arqAntigo = fopen(nomeArqVideos, "rb");
+    if(arqAntigo == NULL){
+        printf("Erro ao abrir arquivo de usuarios.");
+        return;
+    }
+
+    FILE *arqNovo = fopen("temp.bin", "wb");
+    if (arqNovo == NULL) {
+        printf("Erro ao criar arquivo temporario.\n");
+        fclose(arqAntigo);
+        return;
+    }
+
+    struct Video u;
+    int encontrou = 0;
+
+    while (fread(&u, sizeof(struct Video), 1, arqAntigo) == 1) {
+        
+        if (u.id == id) {
+            encontrou = 1; 
+        } else {
+            fwrite(&u, sizeof(struct Video), 1, arqNovo);
+        }
+    }
+
+    fclose(arqAntigo);
+    fclose(arqNovo);
+
+    if (encontrou == 1) {
+        remove(nomeArqVideos);
+        
+        rename("temp.bin", nomeArqVideos);
+        
+        printf("Video excluido com sucesso!\n");
+    } else {
+        remove("temp.bin");
+        printf("Erro: Video ID %d nao encontrado.\n", id);
+    }
+}
+
+void verUmVideo(char nomeArqVideos[]){
+    int id, buscaVideo;
+
+    printf("Digite o id do video que deseja ver: ");
+    scanf("%d", &id);
+
+    buscaVideo = buscarVideo(nomeArqVideos, id);
+
+    if(buscaVideo == -1){
+        printf("Video nao encontrado.");
+        return;
+    }
+
+    FILE * arq = fopen(nomeArqVideos, "rb");
+
+    if(arq == NULL){
+        printf("Erro na abertura do arquivo de videos.");
+        return;
+    }
+
+    struct Video v;
+    long posicaoBytes = sizeof(struct Video) * buscaVideo;
+    fseek(arq, posicaoBytes, SEEK_SET);
+    fread(&v, sizeof(struct Video), 1, arq);
+
+    printf("\nID: %d", v.id);
+    printf("\nTitulo: %s", v.titulo);
+    printf("\nDescricao: %s", v.descricao);
+    printf("\nTema: %s", v.tema);
+
+    fclose(arq);
+}
+
+void verUmUsuario(char nomeArqUsuarios[], char nomeArqVideos[]){
+    int id, buscaUsuario;
+
+    printf("Digite o id do usuario que deseja ver: ");
+    scanf("%d", &id);
+
+    buscaUsuario = buscarUsuarioId(nomeArqUsuarios, id);
+
+    if(buscaUsuario == -1){
+        printf("Usuario nao encontrado.");
+        return;
+    }
+
+    FILE * arq = fopen(nomeArqUsuarios, "rb");
+
+    struct Usuario u;
+    long posicaoBytes = sizeof(struct Usuario) * buscaUsuario;
+    fseek(arq, posicaoBytes, SEEK_SET);
+    fread(&u, sizeof(struct Usuario), 1, arq);
+
+    printf("\nID: %d", u.id);
+    printf("\nNome: %s", u.nome);
+    printf("\nEmail: %s", u.email);
+    printf("\nVideos favoritos: ");
+    if (u.qtd_favoritos == 0) {
+            printf("\t(Nenhum video favoritado)\n");
+            return;
+        }
+        
+    FILE *arqVideos = fopen(nomeArqVideos, "rb");
+    for(int i = 0; i < u.qtd_favoritos; i+=1){
+        int buscaVideo;
+        buscaVideo = buscarVideo(nomeArqVideos, u.idsVideosFavoritos[i]);
+
+        if(buscaVideo == -1){
+            printf("id %d nao encontrado.", u.idsVideosFavoritos[i]);
+            continue;
+        }
+        
+        struct Video v;
+        long posicaoBytes = buscaVideo * sizeof(struct Video);
+        fseek(arqVideos, posicaoBytes, SEEK_SET);
+        fread(&v, sizeof(struct Video), 1, arqVideos);
+
+        printf("Titulo: %s\n", v.titulo);
+        printf("Descricao: %s\n", v.descricao);
+        printf("Tema: %s\n", v.tema);
+    }
+    fclose(arq);
     fclose(arqVideos);
 }
