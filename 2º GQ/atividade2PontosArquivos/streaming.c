@@ -41,6 +41,8 @@ void atualizarVideo(char nomeArqVideos);
 void relatorio(char nomeArqVideos[], char nomeArqUsuarios[]);
 void excluirUsuario(char nomeArquivoUsuarios[]);
 void excluirVideo(char nomeArqVideos[]);
+void verUmVideo(char nomeArqVideos[]);
+void verUmUsuario(char nomeArqUsuarios[], char nomeArqVideos[]);
 
 int main(){
     FILE * arqVideosCadastrados;
@@ -95,8 +97,9 @@ int main(){
             case 10:
                 excluirVideo(nomeArqVideos);
             case 11:
-
+                verUmVideo(nomeArqVideos);
             case 12:
+                verUmUsuario(nomeArqUsuarios, nomeArqVideos);
         }    
     }
     return 0;
