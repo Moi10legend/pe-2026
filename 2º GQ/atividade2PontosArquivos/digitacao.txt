@@ -1,0 +1,16 @@
+1
+1
+Moises
+Moises@gmail.com
+1
+2
+Diego
+Diego@gmail.com
+2
+2
+Como programar em C
+Vídeo demonstrando a programação em C, com foco na lógica, estruturação do código e resolução de problemas.
+Tecnologia
+5
+1
+2
