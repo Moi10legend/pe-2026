@@ -28,7 +28,8 @@ struct Usuario{
 int buscarUsuarioEmail(char nomeArqUsuarios[], char email[]); 
 int buscarUsuarioId(char nomeArqUsuarios[], int id);
 void mostrarVideosFavoritos(struct Video vv[], int tam);
-void cadastrarUsuario();
+void cadastrarUsuario(char nomeArqUsuarios[]);
+void cadastrarVideo(char nomeArqVideos[]);
 void mostrarVideos(char nomeArqVideos[]);
 void lerStr(char str[], int tamMax);
 int buscarVideo(char nomeArqVideos[], int id);
@@ -45,12 +46,10 @@ void verUmVideo(char nomeArqVideos[]);
 void verUmUsuario(char nomeArqUsuarios[], char nomeArqVideos[]);
 
 int main(){
-    FILE * arqVideosCadastrados;
-    FILE * arqUsuariosCadastrados;
     char nomeArqVideos[] = "videosCadastrados.bin";
     char nomeArqUsuarios[] = "usuariosCadastrados.bin";
 
-    int opcao = 1, status;
+    int opcao = 1;
 
     //arqVideosCadastrados = fopen(nomeArqVideos, "wb"); Criação do arquivo de vídeos cadastrados
     //arqUsuariosCadastrados = fopen(nomeArqUsuarios, "wb");  Criação do arquivo de usuários cadastrados
@@ -78,28 +77,40 @@ int main(){
         switch(opcao){
             case 1:
                 cadastrarUsuario(nomeArqUsuarios);
+                break;
             case 2:
                 cadastrarVideo(nomeArqVideos);
+                break;
             case 3:
                 mostrarVideos(nomeArqVideos);
+                break;
             case 4:
                 mostrarUsuarios(nomeArqUsuarios);
+                break;
             case 5:
                 adicionarVideoAosFavoritos(nomeArqVideos, nomeArqUsuarios);
+                break;
             case 6:
                 atualizarUsuario(nomeArqUsuarios);
+                break;
             case 7:
                 atualizarVideo(nomeArqVideos);
+                break;
             case 8:
                 relatorio(nomeArqVideos, nomeArqUsuarios);
+                break;
             case 9:
                 excluirUsuario(nomeArqUsuarios);
+                break;
             case 10:
                 excluirVideo(nomeArqVideos);
+                break;
             case 11:
                 verUmVideo(nomeArqVideos);
+                break;
             case 12:
                 verUmUsuario(nomeArqUsuarios, nomeArqVideos);
+                break;
         }    
     }
     return 0;
@@ -119,7 +130,7 @@ void cadastrarUsuario(char nomeArqUsuarios[]){
     int resultadoBusca, id;
 
     if(qtdUsuariosCadastrados(nomeArqUsuarios) == MAX_USUARIOS){
-        printf("Limite de usuarios cadastrados %d atingido.", MAX_USUARIOS);
+        printf("Limite de usuarios cadastrados %d atingido.\n", MAX_USUARIOS);
         return;
     }
 
@@ -128,7 +139,7 @@ void cadastrarUsuario(char nomeArqUsuarios[]){
     getchar();
     resultadoBusca = buscarUsuarioId(nomeArqUsuarios, id);
     if(resultadoBusca != -1){
-        printf("Id ja cadastrado.");
+        printf("Id ja cadastrado.\n");
         return;
     }
     novo.id = id;
@@ -137,7 +148,7 @@ void cadastrarUsuario(char nomeArqUsuarios[]){
     lerStr(email, TAM_MAX_EMAIL);
     resultadoBusca = buscarUsuarioEmail(nomeArqUsuarios, email);
     if(resultadoBusca != -1){
-        printf("Email ja cadastrado.");
+        printf("Email ja cadastrado.\n");
         return;
     }
     strcpy(novo.email, email);
@@ -145,9 +156,11 @@ void cadastrarUsuario(char nomeArqUsuarios[]){
     printf("Digite o nome de usuário: ");
     lerStr(novo.nome, TAM_MAX_NOME);
 
+    novo.qtd_favoritos = 0;
+
     FILE * arq = fopen(nomeArqUsuarios, "ab");
     if(arq == NULL){
-        printf("Erro ao abrir arquivo.");
+        printf("Erro ao abrir arquivo.\n");
         return;
     }
 
@@ -155,7 +168,7 @@ void cadastrarUsuario(char nomeArqUsuarios[]){
 
     fclose(arq);
 
-    printf("\nUsuario %s cadastrado com sucesso!", novo.nome);
+    printf("\nUsuario %s cadastrado com sucesso!\n", novo.nome);
 }
 
 int buscarUsuarioEmail(char nomeArqUsuarios[], char email[]){
@@ -163,7 +176,7 @@ int buscarUsuarioEmail(char nomeArqUsuarios[], char email[]){
     int i = 0;
 
     if (arq == NULL) {
-        printf("Erro ao abrir arquivo de usuarios.");
+        printf("Erro ao abrir arquivo de usuarios.\n");
         return 0; 
     }
 
@@ -185,7 +198,7 @@ int buscarUsuarioId(char nomeArqUsuarios[], int id){
     int i = 0;
 
     if (arq == NULL) {
-        printf("Erro ao abrir arquivo de usuarios.");
+        printf("Erro ao abrir arquivo de usuarios.\n");
         return 0; 
     }
 
@@ -204,11 +217,10 @@ int buscarUsuarioId(char nomeArqUsuarios[], int id){
 
 void cadastrarVideo(char nomeArqVideos[]){
     struct Video novo;
-    char titulo[TAM_MAX_TITULO], descricao[TAM_MAX_DESCRICAO], tema[TAM_MAX_TEMA];
     int id, resultadoBusca;
 
     if(qtdVideosCadastrados(nomeArqVideos) == MAX_VIDEOS_CADASTRADOS){
-        printf("Limite de videos cadastrados atingido (%d)", MAX_VIDEOS_CADASTRADOS);
+        printf("Limite de videos cadastrados atingido (%d)\n", MAX_VIDEOS_CADASTRADOS);
         return;
     }
 
@@ -217,11 +229,12 @@ void cadastrarVideo(char nomeArqVideos[]){
     getchar();
 
     resultadoBusca = buscarVideo(nomeArqVideos, id);
-    if(resultadoBusca == -1){
-        printf("Id ja cadastrado.");
+    if(resultadoBusca != -1){
+        printf("Id ja cadastrado.\n");
         return;
     }
 
+    novo.id = id;
     printf("Digite o titulo do video: ");
     lerStr(novo.titulo, TAM_MAX_TITULO);
     printf("Digite a descricao do video: ");
@@ -232,13 +245,13 @@ void cadastrarVideo(char nomeArqVideos[]){
     FILE * arq = fopen(nomeArqVideos, "ab");
 
     if(arq == NULL){
-        printf("Erro ao abrir arquivo de videos.");
+        printf("Erro ao abrir arquivo de videos.\n");
         return;
     }
     fwrite(&novo, sizeof(struct Video), 1, arq);
     fclose(arq);
 
-    printf("\nVideo cadastrado com sucesso.");
+    printf("\nVideo cadastrado com sucesso.\n");
 }
 
 int buscarVideo(char nomeArqVideos[], int id){
@@ -246,7 +259,7 @@ int buscarVideo(char nomeArqVideos[], int id){
     int i = 0;
 
     if (arq == NULL) {
-        printf("Erro ao abrir arquivo de videos.");
+        printf("Erro ao abrir arquivo de videos.\n");
         return 0; 
     }
 
@@ -267,14 +280,22 @@ void mostrarVideos(char nomeArqVideos[]){
     FILE * arq = fopen(nomeArqVideos, "rb");
 
     if (arq == NULL) {
-        printf("Erro ao abrir arquivo de videos.");
+        printf("Erro ao abrir arquivo de videos.\n");
         return; 
     }
 
     struct Video u;
+
+    int contador = 0;
+
     while(fread(&u, sizeof(struct Video), 1, arq) == 1){
         printf("\nId: %d\n", u.id);
         printf("Titulo: %s\n", u.titulo);
+        contador += 1;
+    }
+
+    if(contador == 0){
+        printf("Nenhum video cadastrado.\n");
     }
 
     fclose(arq);
@@ -284,15 +305,22 @@ void mostrarUsuarios(char nomeArqUsuarios[]){
     FILE * arq = fopen(nomeArqUsuarios, "rb");
 
     if(arq == NULL){
-        printf("Erro ao abrir arquivo de usuarios.");
+        printf("Erro ao abrir arquivo de usuarios.\n");
         return;
     }
 
     struct Usuario u;
 
+    int contador = 0;
+
     while(fread(&u, sizeof(struct Usuario), 1, arq) == 1){
         printf("\nId: %d\n", u.id);
         printf("Nome: %s\n", u.nome);
+        contador += 1;
+    }
+
+    if(contador == 0){
+        printf("Nenhum usuario cadastrado.\n");
     }
 
     fclose(arq);
@@ -306,7 +334,7 @@ void adicionarVideoAosFavoritos(char nomeArqVideos[], char nomeArqUsuarios[]){
 
     buscaUsuario = buscarUsuarioId(nomeArqUsuarios, idUsuario);
     if(buscaUsuario == -1){
-        printf("Usuario nao cadastrado.");
+        printf("Usuario nao cadastrado.\n");
         return;
     }
 
@@ -314,14 +342,14 @@ void adicionarVideoAosFavoritos(char nomeArqVideos[], char nomeArqUsuarios[]){
     scanf("%d", &idVideo);
 
     if(buscarVideo(nomeArqVideos, idVideo) == -1){
-        printf("Video nao cadastrado.");
+        printf("Video nao cadastrado.\n");
         return;
     }
 
     FILE * arq = fopen(nomeArqUsuarios, "r+b");
 
     if(arq == NULL){
-        printf("Erro ao abrir arquivo de usuarios.");
+        printf("Erro ao abrir arquivo de usuarios.\n");
         return;
     }
 
@@ -333,7 +361,7 @@ void adicionarVideoAosFavoritos(char nomeArqVideos[], char nomeArqUsuarios[]){
     fread(&u, sizeof(struct Usuario), 1, arq);
 
     if(u.qtd_favoritos == QTD_MAX_VIDEOS){
-        printf("Limite de videos favoritos do usuario atingido.");
+        printf("Limite de videos favoritos do usuario atingido.\n");
         fclose(arq);
         return;
     }
@@ -344,7 +372,7 @@ void adicionarVideoAosFavoritos(char nomeArqVideos[], char nomeArqUsuarios[]){
     fseek(arq, -sizeof(struct Usuario), SEEK_CUR);
     fwrite(&u, sizeof(struct Usuario), 1, arq);
 
-    printf("Video adicionado aos favoritos com sucesso.");
+    printf("Video adicionado aos favoritos com sucesso.\n");
     fclose(arq);
 }
 
@@ -352,7 +380,7 @@ int qtdUsuariosCadastrados(char nomeArqUsuarios[]){
     FILE * arq = fopen(nomeArqUsuarios, "rb");
 
     if(arq == NULL){
-        printf("Erro ao abrir arquivo de usuarios.");
+        printf("Erro ao abrir arquivo de usuarios.\n");
         return 0;
     }
 
@@ -368,7 +396,7 @@ int qtdVideosCadastrados(char nomeArqVideos){
     FILE * arq = fopen(nomeArqVideos, "rb");
 
     if(arq == NULL){
-        printf("Erro ao abrir arquivo de videos.");
+        printf("Erro ao abrir arquivo de videos.\n");
         return 0;
     }
 
@@ -390,14 +418,14 @@ void atualizarUsuario(char nomeArqUsuarios[]){
     buscaUsuario = buscarUsuarioId(nomeArqUsuarios, idUsuario);
 
     if(buscaUsuario == -1){
-        printf("Usuario nao cadastrado.");
+        printf("Usuario nao cadastrado.\n");
         return;
     }
 
     FILE * arq = fopen(nomeArqUsuarios, "r+b");
 
     if(arq == NULL){
-        printf("Erro ao abrir arquivo de usuarios.");
+        printf("Erro ao abrir arquivo de usuarios.\n");
         return;
     }
 
@@ -423,7 +451,7 @@ void atualizarUsuario(char nomeArqUsuarios[]){
     fseek(arq, -sizeof(struct Usuario), SEEK_CUR);
     fwrite(&u, sizeof(struct Usuario), 1, arq);
 
-    printf("Usuario atualizado com sucesso.");
+    printf("Usuario atualizado com sucesso.\n");
     fclose(arq);
 }
 
@@ -434,16 +462,16 @@ void atualizarVideo(char nomeArqVideos){
     scanf("%d", &idVideo);
     getchar();
 
-    buscarVideo(nomeArqVideos, idVideo);
+    buscaVideo = buscarVideo(nomeArqVideos, idVideo);
     if(buscaVideo == -1){
-        printf("Video nao cadastrado.");
+        printf("Video nao cadastrado.\n");
         return;
     }
 
     FILE * arq = fopen(nomeArqVideos, "r+b");
 
     if(arq == NULL){
-        printf("Erro ao abrir arquivo de usuarios.");
+        printf("Erro ao abrir arquivo de usuarios.\n");
         return;
     }
 
@@ -474,7 +502,7 @@ void atualizarVideo(char nomeArqVideos){
     fseek(arq, -sizeof(struct Video), SEEK_CUR);
     fwrite(&u, sizeof(struct Video), 1, arq);
 
-    printf("Video atualizado com sucesso.");
+    printf("Video atualizado com sucesso.\n");
     fclose(arq);
 }
 
@@ -483,11 +511,11 @@ void relatorio(char nomeArqVideos[], char nomeArqUsuarios[]){
     FILE * arqVideos = fopen(nomeArqVideos, "rb");
 
     if(arqUsuarios == NULL){
-        printf("Erro ao abrir arquivo de usuarios.");
+        printf("Erro ao abrir arquivo de usuarios.\n");
         return;
     }
     if(arqVideos == NULL){
-        printf("Erro ao abrir arquivo de videos.");
+        printf("Erro ao abrir arquivo de videos.\n");
         return;
     }
 
@@ -500,13 +528,13 @@ void relatorio(char nomeArqVideos[], char nomeArqUsuarios[]){
         if (u.qtd_favoritos == 0) {
             printf("\t(Nenhum video favoritado)\n");
         }
-
+        printf("Videos favoritados: \n");
         for(int i = 0; i < u.qtd_favoritos; i+=1){
             int buscaVideo;
             buscaVideo = buscarVideo(nomeArqVideos, u.idsVideosFavoritos[i]);
 
             if(buscaVideo == -1){
-                printf("id %d nao encontrado.", u.idsVideosFavoritos[i]);
+                printf("id %d nao encontrado.\n", u.idsVideosFavoritos[i]);
                 continue;
             }
             struct Video v;
@@ -533,7 +561,7 @@ void excluirUsuario(char nomeArquivoUsuarios[]){
 
     FILE * arqAntigo = fopen(nomeArquivoUsuarios, "rb");
     if(arqAntigo == NULL){
-        printf("Erro ao abrir arquivo de usuarios.");
+        printf("Erro ao abrir arquivo de usuarios.\n");
         return;
     }
 
@@ -580,7 +608,7 @@ void excluirVideo(char nomeArqVideos[]){
 
     FILE * arqAntigo = fopen(nomeArqVideos, "rb");
     if(arqAntigo == NULL){
-        printf("Erro ao abrir arquivo de usuarios.");
+        printf("Erro ao abrir arquivo de usuarios.\n");
         return;
     }
 
@@ -627,14 +655,14 @@ void verUmVideo(char nomeArqVideos[]){
     buscaVideo = buscarVideo(nomeArqVideos, id);
 
     if(buscaVideo == -1){
-        printf("Video nao encontrado.");
+        printf("Video nao encontrado.\n");
         return;
     }
 
     FILE * arq = fopen(nomeArqVideos, "rb");
 
     if(arq == NULL){
-        printf("Erro na abertura do arquivo de videos.");
+        printf("Erro na abertura do arquivo de videos.\n");
         return;
     }
 
@@ -646,7 +674,7 @@ void verUmVideo(char nomeArqVideos[]){
     printf("\nID: %d", v.id);
     printf("\nTitulo: %s", v.titulo);
     printf("\nDescricao: %s", v.descricao);
-    printf("\nTema: %s", v.tema);
+    printf("\nTema: %s\n", v.tema);
 
     fclose(arq);
 }
@@ -660,7 +688,7 @@ void verUmUsuario(char nomeArqUsuarios[], char nomeArqVideos[]){
     buscaUsuario = buscarUsuarioId(nomeArqUsuarios, id);
 
     if(buscaUsuario == -1){
-        printf("Usuario nao encontrado.");
+        printf("Usuario nao encontrado.\n");
         return;
     }
 
@@ -674,7 +702,7 @@ void verUmUsuario(char nomeArqUsuarios[], char nomeArqVideos[]){
     printf("\nID: %d", u.id);
     printf("\nNome: %s", u.nome);
     printf("\nEmail: %s", u.email);
-    printf("\nVideos favoritos: ");
+    printf("\nVideos favoritos: \n");
     if (u.qtd_favoritos == 0) {
             printf("\t(Nenhum video favoritado)\n");
             return;
@@ -686,7 +714,7 @@ void verUmUsuario(char nomeArqUsuarios[], char nomeArqVideos[]){
         buscaVideo = buscarVideo(nomeArqVideos, u.idsVideosFavoritos[i]);
 
         if(buscaVideo == -1){
-            printf("id %d nao encontrado.", u.idsVideosFavoritos[i]);
+            printf("id %d nao encontrado.\n", u.idsVideosFavoritos[i]);
             continue;
         }
         
