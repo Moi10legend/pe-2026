@@ -35,10 +35,10 @@ void lerStr(char str[], int tamMax);
 int buscarVideo(char nomeArqVideos[], int id);
 void mostrarUsuarios(char nomeArqUsuarios[]);
 int qtdUsuariosCadastrados(char nomeArqUsuarios[]);
-int qtdVideosCadastrados(char nomeArqVideos);
+int qtdVideosCadastrados(char nomeArqVideos[]);
 void adicionarVideoAosFavoritos(char nomeArqVideos[], char nomeArqUsuarios[]);
 void atualizarUsuario(char nomeArqUsuarios[]);
-void atualizarVideo(char nomeArqVideos);
+void atualizarVideo(char nomeArqVideos[]);
 void relatorio(char nomeArqVideos[], char nomeArqUsuarios[]);
 void excluirUsuario(char nomeArquivoUsuarios[]);
 void excluirVideo(char nomeArqVideos[]);
@@ -177,7 +177,7 @@ int buscarUsuarioEmail(char nomeArqUsuarios[], char email[]){
 
     if (arq == NULL) {
         printf("Erro ao abrir arquivo de usuarios.\n");
-        return 0; 
+        return -1; 
     }
 
     struct Usuario u;
@@ -199,7 +199,7 @@ int buscarUsuarioId(char nomeArqUsuarios[], int id){
 
     if (arq == NULL) {
         printf("Erro ao abrir arquivo de usuarios.\n");
-        return 0; 
+        return -1; 
     }
 
     struct Usuario u;
@@ -260,7 +260,7 @@ int buscarVideo(char nomeArqVideos[], int id){
 
     if (arq == NULL) {
         printf("Erro ao abrir arquivo de videos.\n");
-        return 0; 
+        return -1; 
     }
 
     struct Video u;
@@ -392,7 +392,7 @@ int qtdUsuariosCadastrados(char nomeArqUsuarios[]){
     return tamanhoBytes / sizeof(struct Usuario);
 }
 
-int qtdVideosCadastrados(char nomeArqVideos){
+int qtdVideosCadastrados(char nomeArqVideos[]){
     FILE * arq = fopen(nomeArqVideos, "rb");
 
     if(arq == NULL){
@@ -455,7 +455,7 @@ void atualizarUsuario(char nomeArqUsuarios[]){
     fclose(arq);
 }
 
-void atualizarVideo(char nomeArqVideos){
+void atualizarVideo(char nomeArqVideos[]){
     int idVideo, buscaVideo;
 
     printf("Digite o id do video que deseja atualizar: ");
@@ -477,14 +477,14 @@ void atualizarVideo(char nomeArqVideos){
 
     struct Video u;
 
-    long posicaoBytes = buscaVideo * sizeof(struct Usuario);
+    long posicaoBytes = buscaVideo * sizeof(struct Video);
     fseek(arq, posicaoBytes, SEEK_SET);
-    fread(&u, sizeof(struct Usuario), 1, arq);
+    fread(&u, sizeof(struct Video), 1, arq);
 
     char temp[TAM_MAX_TITULO];
 
     printf("Digite o novo titulo (aperte enter se nao quer editar o titulo): ");
-    lerStr(temp, TAM_MAX_NOME);
+    lerStr(temp, TAM_MAX_TITULO);
     if(strlen(temp) > 0){
         strcpy(u.titulo, temp);
     }
@@ -705,6 +705,7 @@ void verUmUsuario(char nomeArqUsuarios[], char nomeArqVideos[]){
     printf("\nVideos favoritos: \n");
     if (u.qtd_favoritos == 0) {
             printf("\t(Nenhum video favoritado)\n");
+            fclose(arq);
             return;
         }
         
